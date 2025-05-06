@@ -1,0 +1,9 @@
+# Editor
+.vscode
+# Terraform
+.terraform
+*.tfvars
+*.tfstate
+*.backup
+*.log
+

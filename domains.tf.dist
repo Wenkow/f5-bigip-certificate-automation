@@ -1,0 +1,18 @@
+locals {
+  dns_challenge_certs = {
+    "name_of_the_certificate_object_which_will_appear_in_bigip" = {
+      cn  = "acme1.example.com"
+      san = ["acme1.example.com"]
+    }
+    "wildcard.example.com" = {
+      cn  = "*.example.com"
+      san = ["*.example.com"]
+    }
+    "main.example.com" = {
+      cn  = "main.example.com"
+      san = ["main.example.com"]
+      partition = another_partition
+      parent_ssl_profile = "custom-clientssl"
+    }
+  }
+}
