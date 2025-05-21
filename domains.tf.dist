@@ -6,7 +6,7 @@ locals {
     }
     "wildcard.example.com" = {
       cn  = "*.example.com"
-      san = ["*.example.com"]
+      san = ["example.com"]
     }
     "main.example.com" = {
       cn  = "main.example.com"
