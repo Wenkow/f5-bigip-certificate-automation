@@ -1,0 +1,81 @@
+image:
+  name: hashicorp/terraform:latest
+#  name: registry.gitlab.com/gitlab-org/terraform-images/stable:latest
+  entrypoint:
+    - "/usr/bin/env"
+    - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+cache:
+  key: "${CI_COMMIT_BRANCH}"
+  paths:
+    - ${TF_ROOT}/.terraform/
+
+variables:
+  TF_ROOT: ${CI_PROJECT_DIR}
+  TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/${CI_COMMIT_BRANCH}
+  TF_STATE_NAME: ${CI_COMMIT_BRANCH}
+
+stages:
+  - static-check
+  - validate
+  - plan
+  - apply
+  - destroy
+
+# Static security check using tfsec (https://github.com/tfsec/tfsec)
+tfsec:
+  stage: static-check
+  image: tfsec/tfsec-ci
+  script:
+    - tfsec . --exclude-downloaded-modules -f junit --out tfsec-report.xml
+    - tfsec . --exclude-downloaded-modules
+  artifacts:
+    when: always
+    reports:
+      junit: tfsec-report.xml
+
+validate:
+  stage: validate
+  script:
+    - ./gitlab-terraform --version
+    - ./gitlab-terraform init -upgrade -input=false
+    - ./gitlab-terraform validate
+
+plan:
+  stage: plan
+  script:
+    - apk add --no-cache jq
+    - ./gitlab-terraform version
+    - ./gitlab-terraform init -upgrade -input=false
+    - ./gitlab-terraform plan -input=false
+    - ./gitlab-terraform plan-json -input=false
+  artifacts:
+    name: plan
+    paths:
+      - ${TF_ROOT}/plan.cache
+    reports:
+      terraform: ${TF_ROOT}/plan.json
+
+apply:
+  stage: apply
+  environment:
+    name: production
+  script:
+    - ./gitlab-terraform init -upgrade -input=false
+    - ./gitlab-terraform apply -input=false
+  dependencies:
+    - plan
+#  when: manual
+
+# Separate destroy job. Requires manual launch as it is destructive action.
+destroy:
+  stage: destroy
+  environment:
+    name: production
+  script:
+    - ./gitlab-terraform --version
+    - ./gitlab-terraform init -input=false
+    - ./gitlab-terraform destroy -auto-approve -input=false
+  dependencies:
+    - plan
+  when: manual
