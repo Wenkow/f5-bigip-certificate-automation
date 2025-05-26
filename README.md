@@ -61,9 +61,9 @@ Your GitLab project must define the following **CI/CD variables**:
 | `BIGIP_PASSWORD`            | Password for BIG-IP REST API                 |
 | `global_parent_ssl_profile` | Parent SSL profile to inherit on BIG-IP      |
 
-## Cert Definition (`domains.tf`)
+## Cert Definition (`domains.yml`)
 
-Certificates are defined in the `locals` block using the `dns_challenge_certs` map. See domains.tf.dist file.
+Certificates are defined in the yaml file inside `dns_challenge_certs` map. See domains.yml.example file.
 
 Required fields per certificate:
 
@@ -76,26 +76,18 @@ Optional fields:
 * `parent_ssl_profile`: Overrides the global SSL profile for that specific certificate
 
 ```hcl
-locals {
-  dns_challenge_certs = {
-    "name_of_the_certificate_object_which_will_appear_in_bigip" = {
-      cn  = "acme1.example.com"
-      san = ["acme1.example.com"]
-    }
-
-    "wildcard.example.com" = {
-      cn  = "*.example.com"
-      san = ["*.example.com"]
-    }
-
-    "main.example.com" = {
-      cn                  = "main.example.com"
-      san                 = ["main.example.com"]
-      partition           = "another_partition"
-      parent_ssl_profile  = "custom-clientssl"
-    }
-  }
-}
+dns_challenge_certs:
+  name_of_the_certificate_object_which_will_appear_in_bigip:
+    cn: acme1.example.com
+    san: ["acme1.example.com"]
+  wildcard.example.com:
+    cn: *.example.com
+    san: ["example.com"]
+  www.example.com:
+    cn: www.example.com
+    san: ["www.example.com"]
+    partition: another_partition
+    parent_ssl_profile: custom-clientssl
 ```
 
 ## Best Practices
