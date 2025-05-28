@@ -17,8 +17,9 @@ module "bigip_intermediate_certs" {
 
 
 module "dns_challenge" {
-  source   = "./modules/acme_dns"
-  for_each = local.dns_challenge_certs
+  depends_on = [module.bigip_intermediate_certs]
+  source     = "./modules/acme_dns"
+  for_each   = local.dns_challenge_certs
 
   name                      = each.key
   cn                        = each.value["cn"]
