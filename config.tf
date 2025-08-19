@@ -14,5 +14,6 @@ provider "bigip" {
   password               = var.BIGIP_PASSWORD
   port                   = var.BIGIP_PORT
   validate_certs_disable = true
+  token_auth             = false
   token_timeout          = 3600
 }
