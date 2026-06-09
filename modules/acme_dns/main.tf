@@ -51,5 +51,5 @@ resource "bigip_ltm_profile_client_ssl" "Client_SSL_Profile" {
   defaults_from = "/Common/${var.parent_ssl_profile != null ? var.parent_ssl_profile : var.global_parent_ssl_profile}"
   cert          = bigip_ssl_key_cert.key_cert.cert_full_path
   key           = bigip_ssl_key_cert.key_cert.key_full_path
-  chain         = "/Common/LetsEncrypt_${regex("[ER][0-9]*", data.tls_certificate.issuer.certificates[0].subject)}"
+  chain         = "/Common/LetsEncrypt_${regex("Y?[ER][0-9]*", data.tls_certificate.issuer.certificates[0].subject)}"
 }
